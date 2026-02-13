@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: collegeerp-deployment
+  labels:
+    app: college-erp
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: college-erp
+  template:
+    metadata:
+      labels:
+        app: college-erp
+    spec:
+      containers:
+      - name: college-erp
+        image: pkyenugula/collegeerp-sql:latest
+        ports:
+        - containerPort: 8000
+

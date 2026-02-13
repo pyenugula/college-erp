@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: college-erp
+  labels:
+    app.kubernetes.io/name: college-erp
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: college-erp.local
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: college-erp-service
+            port: 
+              number: 80

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: college-erp-service
+  labels:
+    app: college-erp
+spec:
+  ports:
+  - port: 80
+    targetPort: 8000
+    protocol: TCP
+  selector:
+    app: college-erp
+  type : ClusterIP
+
