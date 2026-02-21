@@ -8,7 +8,7 @@ image:
   repository: pkyenugula/collegeerp-sql
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "latest"
+  tag: "22262482923"
 
 ingress:
   enabled: false
