@@ -34,3 +34,38 @@ variable "cluster_name" {
   default     = "my-eks-cluster"
 }
 
+variable "cluster_version" {
+  type        = string
+  description = "Kubernetes version"
+  default = "1.34"
+  
+}
+
+
+variable "node_groups" {
+  type        = map(object({
+
+    instance_types=list(string)
+    capacity_type=string
+    scaling_config=object({
+      desired_size = number
+      max_size=number
+      min_size=number
+    })
+
+  }))
+  default = {
+    general = {
+
+      instance_types=["t3.medium"]
+      capacity_type="ON_DEMAND"
+      scaling_config={
+
+        desired_size=2
+        max_size=4
+        min_size=1
+      }
+      
+    }
+  }
+}
