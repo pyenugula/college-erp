@@ -11,5 +11,5 @@ spec:
     protocol: TCP
   selector:
     app: college-erp
-  type : ClusterIP
+  type : LoadBalancer
 
