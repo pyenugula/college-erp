@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: collegeerp-deployment
+  name: college-erp-deployment
   labels:
     app: college-erp
 spec:
