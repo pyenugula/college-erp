@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: college-erp-deployment
+  name: collegeerp-deployment
   labels:
     app: college-erp
 spec:
@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: college-erp
-        image: pkyenugula/collegeerp-sql:{{ .Values.image.tag }} #removed latest and added this :{{ .Values.image.tag }}
+        image: pkyenugula/college-erp-sql:{{ .Values.image.tag }} #removed latest and added this :{{ .Values.image.tag }}
         ports:
         - containerPort: 8000
 
