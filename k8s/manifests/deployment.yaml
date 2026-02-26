@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: college-erp
-        image: pkyenugula/collegeerp-sql:latest
+        image: pkyenugula/college-erp-sql:latest
         ports:
         - containerPort: 8000
 
