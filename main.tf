@@ -10,7 +10,7 @@ terraform {
     bucket         = "nivyan2024"
     key            = "terraform.tfstate"
     region         = "eu-west-2"
-    dynamodb_table = "terraform-eks-state-locks"
+    #dynamodb_table = "terraform-eks-state-locks"
     encrypt        = true
   }
 }

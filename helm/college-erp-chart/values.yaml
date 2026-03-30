@@ -5,10 +5,10 @@
 replicaCount: 1
 
 image:
-  repository: pkyenugula/collegeerp-sql
+  repository: pkyenugula/college-erp-sql
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "22262925275"
+  tag: "22443954884"
 
 ingress:
   enabled: false

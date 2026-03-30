@@ -1,0 +1,162 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'helm/**'
+      - 'k8s/**'
+      - 'README.md'
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: [3.13]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Apply Migration
+        run: |
+          python3 manage.py makemigrations
+          python3 manage.py migrate
+
+      - name: Run Tests
+        run: |
+          python3 manage.py test
+
+  lint:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.13
+
+      - name: Install Lint Dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install flake8
+
+      - name: Run Lint
+        run: |
+          flake8 .
+
+  dependency-scan:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.13
+
+      - name: Install OWASP Dependency-Check
+        run: |
+          curl -sSL https://github.com/jeremylong/DependencyCheck/releases/download/v8.4.1/dependency-check-8.4.1-release.zip -o dependency-check.zip
+          unzip dependency-check.zip -d dependency-check
+          chmod +x dependency-check/dependency-check/bin/dependency-check.sh
+
+      - name: Run Dependency Check
+        run: |
+          dependency-check/dependency-check/bin/dependency-check.sh --project "college-erp" --scan .
+
+  image-scan:
+    runs-on: ubuntu-latest
+    needs: push
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/college-erp-sql:${{ github.run_id }}
+          format: table
+          exit-on-found: true
+
+  checkov-scan:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.13
+
+      - name: Install Checkov
+        run: pip install checkov
+
+      - name: Run Checkov
+        run: checkov -d .
+
+  push:
+    runs-on: ubuntu-latest
+    needs: [lint, dependency-scan, checkov-scan]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and Push multi-arch image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/college-erp-sql:${{ github.run_id }}
+
+  update-newtag-in-helm-chart:
+    runs-on: ubuntu-latest
+    needs: push
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.TOKEN }}
+
+      - name: Update tag in Helm chart
+        run: |
+          sed -i "s/tag: .*/tag: \"${{ github.run_id }}\"/" helm/college-erp-chart/values.yaml
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.email "pkyenugula@gmail.com"
+          git config --global user.name "pyenugula"
+          git add helm/college-erp-chart/values.yaml
+          git commit -m "Update tag in Helm chart" || echo "No changes to commit"
+          git push

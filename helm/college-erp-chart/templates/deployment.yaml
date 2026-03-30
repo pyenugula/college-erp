@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: college-erp
-        image: pkyenugula/collegeerp-sql:{{ .Values.image.tag }} #removed latest and added this :{{ .Values.image.tag }}
+        image: pkyenugula/college-erp-sql:{{ .Values.image.tag }} #removed latest and added this :{{ .Values.image.tag }}
         ports:
         - containerPort: 8000
 
