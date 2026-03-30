@@ -1,0 +1,29 @@
+steps to create and delete kubernetes cluster using eksctl 
+
+Prerequisites: 
+
+Before starting this tutorial, you must install and configure the AWS CLI, 
+kubectl, and eksctl tools in your local computer.
+
+Step 1: Create your Amazon EKS cluster and nodes
+
+You can create a cluster with one of the following node types
+Fargate – Linux – Select this type of node if you want to run Linux applications on Simplify compute management with AWS Fargate. Fargate is a serverless compute engine that lets you deploy Kubernetes Pods without managing Amazon EC2 instances.
+
+eksctl create cluster --name my-cluster --region region-code --fargate
+
+Managed nodes – Linux – Select this type of node if you want to run Amazon Linux applications on Amazon EC2 instances. 
+
+eksctl create cluster --name my-cluster --region region-code
+
+eksctl created a kubectl config file in ~/.kube/config or 
+added the new cluster’s configuration within an existing config file in ~/.kube/config on your computer.
+
+Step 2: View Kubernetes resources
+
+kubectl get nodes -o wide
+
+Step 3: Delete your cluster and nodes
+
+eksctl delete cluster --name my-cluster --region region-code
+
